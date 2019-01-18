@@ -1,53 +1,76 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Simple Map</title>
+    <title>RouteWx</title>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
-    <style>
-      /* Always set the map height explicitly to define the size of the div
-       * element that contains the map. */
-      #map {
-        height: 100%;
-      }
-      /* Optional: Makes the sample page fill the window. */
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
-    <input id="origin-input" class="controls" type="text"
-        placeholder="Start">
+    <header class="page-header">
+      <h1>RouteWx</h1>
+    </header>
+    <div id="content">
+      <div id="map"></div>
+      <div id="loader-gif-div">
+        <img id="loader-gif"/>
+      </div>
     </div>
-    <input id="destination-input" class="controls" type="text"
-        placeholder="End">
-    </div>
-    <div id="reload-div">
-        <button id="reload">Reload</button>
-    </div>
-    <input type="text" id="timePicker" placeholder="Please select a departure date/time">
-    <div id="map"></div>
-    <button id="reload">Reload</button>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
     <script>
       var map;
+      var polylineURI = "http://localhost:5000/polyline";
+      var now = new Date();
+      var modelInit = new Date();
+      var nowUTCHour = now.getUTCHours();
+      if (0 < nowUTCHour < 6) {
+          modelInit.setUTCDate(modelInit.getUTCDate() - 1);
+      }
+      var modelInitHour = 6 < nowUTCHour < 18 ? 0 : 12;
+      modelInit.setUTCHours(modelInitHour);
+      modelInit.setUTCMinutes(0);
+      var latestDeparture = new Date(modelInit.getTime() + 59 * 3600 * 1e3);
+      var polylines = [];
       function initMap() {
+        var infoWindow = new google.maps.InfoWindow();
         var directionsService = new google.maps.DirectionsService();
         var directionsDisplay = new google.maps.DirectionsRenderer();
-        var origin_input = document.getElementById('origin-input');
-        var destination_input = document.getElementById('destination-input');
-        var time_picker = document.getElementById('timePicker');
+        var origin_input = document.createElement('input');
+        var destination_input = document.createElement('input');
+        var load_div = document.createElement('div');
+        var load_border = document.createElement('div');
+        var load_text = document.createElement('div');
+        var time_picker = document.createElement('input');
+        var loaderGIF = document.getElementById('loader-gif-div')
         var origin_autocomplete = new google.maps.places.Autocomplete(origin_input);
         var destination_autocomplete = new google.maps.places.Autocomplete(destination_input);
         var origin_place_id = null;
         var destination_place_id = null;
-        var travel_mode = 'DRIVING'
+        var travel_mode = 'DRIVING';
+        function buildHTML() {
+          origin_input.className += "controls control-text";
+          origin_input.type = "text";
+          origin_input.id = "origin-input";
+          origin_input.placeholder = "Start";
+          destination_input.className += "controls control-text";
+          destination_input.type = "text";
+          destination_input.id = "destination-input";
+          destination_input.placeholder = "End";
+          load_div.id = "load-div";
+          load_border.className += "controls control-button-border";
+          load_border.title = "Click to load directions with highlighted weather hazards";
+          load_text.id = "load";
+          load_text.className += "control-text";
+          load_text.innerHTML = "Load Directions";
+          load_border.appendChild(load_text);
+          load_div.appendChild(load_border);
+          time_picker.className += "controls timePicker";
+          time_picker.type = "text";
+          time_picker.id = "timePicker";
+          time_picker.placeholder = "Please select a departure date/time";
+        }
         function expandViewportToFitPlace(map, place) {
          if (place.geometry.viewport) {
            map.fitBounds(place.geometry.viewport);
@@ -57,7 +80,7 @@
          }
         }
         function route(origin_place_id, destination_place_id, travel_mode,
-                   directionsService, directionsDisplay) {
+                   directionsService, directionsDisplay, selectedDate) {
           if (!origin_place_id || !destination_place_id) {
             return;
           }
@@ -68,20 +91,48 @@
           }, function(response, status) {
             if (status === 'OK') {
               directionsDisplay.setDirections(response);
-              var overview_polyline = response.routes[0].overview_polyline;
+              loaderGIF.style.display = "block";
+              var overviewPolyline = response.routes[0].overview_polyline;
               var duration = response.routes[0].legs[0].duration.value;
-              var route_info = {'overview_polyline':overview_polyline, 'duration':duration}
-              $.getJSON("http://localhost:5000/polyline", route_info, function(data) {
+              var selectedDateUTC = selectedDate.getTime() / 1e3;
+              console.log(selectedDateUTC)
+              var route_info = {
+                                 'overview_polyline':overviewPolyline, 
+                                 'duration':duration, 
+                                 'departure_time': selectedDateUTC
+              };
+              $.getJSON(polylineURI, route_info, function(data) {
+                loaderGIF.style.display = "none";
+                directionsDisplay.setMap(null);
+                polylines = [];
+                var clearRoute = true;
                 $.each(data, function(idx, segment) {
+                  var hazardLevel = segment['hazard_level']
                   var seg = new google.maps.Polyline({
                   path: segment['coords'],
                   geodesic: true,
-                  strokeColor: segment['hazard_level'],
-                  strokeOpacity: 1.0,
+                  strokeColor: hazardLevel,
+                  strokeOpacity: 0.6,
                   strokeWeight: 4
                   });
-                seg.setMap(map);
-                });
+                  seg.setMap(map);
+                  polylines.push(seg);
+                  if ( hazardLevel == 'yellow' || hazardLevel == 'red' ) {
+                    clearRoute = false;
+                    google.maps.event.addListener(seg, 'mouseover', function(e) {
+                      infoWindow.setPosition(e.latLng);
+                      infoWindow.setContent("Temp: " + segment['temp'] + "\xB0 F, 1 hr. precip: " + segment['precip'] + "in.\n Chance Frozen Precip: "+segment['frozen_precip'] +"%");
+                      infoWindow.open(map);
+                    });
+                    google.maps.event.addListener(seg, 'mouseout', function() {
+                      infoWindow.close();
+                    });
+                  }
+                })
+                if (clearRoute)
+                  window.alert("Weather along the route is all clear for now, based on your time of departure!")
+                else
+                  window.alert("There could be hazardous weather along the route, based on your time of departure!")  
               });
             }  
             else {
@@ -90,21 +141,23 @@
           });
         }
         map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: 34, lng: -114},
+          center: {lat: 35.1765, lng: -97.2886},
           zoom: 8
         });
+        buildHTML();
         directionsDisplay.setMap(map);
         origin_autocomplete.bindTo('bounds', map);
         destination_autocomplete.bindTo('bounds', map);
         flatpickr_config = {
                              enableTime: true,
-                             minDate: "today"
+                             minDate: "today",
+                             maxDate: latestDeparture
         }   
-        $('#timePicker').flatpickr(flatpickr_config);
-        map.controls[google.maps.ControlPosition.TOP_RIGHT].push($('#reload-div')[0]);
+        const fp = flatpickr(time_picker, flatpickr_config);
+        map.controls[google.maps.ControlPosition.TOP_RIGHT].push(load_div);
         map.controls[google.maps.ControlPosition.TOP_LEFT].push(origin_input);
         map.controls[google.maps.ControlPosition.TOP_LEFT].push(destination_input);
-        map.controls[google.maps.ControlPosition.TOP_CENTER].push(time_picker);
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(time_picker);
         origin_autocomplete.addListener('place_changed', function() {
           var place = origin_autocomplete.getPlace();
           if (!place.geometry) {
@@ -133,13 +186,21 @@
           //route(origin_place_id, destination_place_id, travel_mode,
           //      directionsService, directionsDisplay);
         });
-        $('#reload').click(function() {
+        load_text.addEventListener("click", function() {
+          var selectedDate = fp.latestSelectedDateObj;
+          if (polylines.length > 0) {
+            $.each(polylines, function(idx, line) {
+                line.setMap(null);
+            });
+          }
           route(origin_place_id, destination_place_id, travel_mode,
-                directionsService, directionsDisplay);
-        }); 
+                directionsService, directionsDisplay, selectedDate);
+        });
+
       }
     var myKey = "AIzaSyBwJb8JdCBDHqZF0plgSI2LNeZVaKBz0Hc";
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDT7Xvae77wHoMFhRSQDIR7RrQsStsuUM4&libraries=places&callback=initMap" async defer></script>
+    <footer>&copy 2019 Brandon Taylor</footer>
   </body>
 </html>
