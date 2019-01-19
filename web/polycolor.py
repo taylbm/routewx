@@ -11,12 +11,8 @@ import copy
 from scipy.interpolate import RegularGridInterpolator
 from urllib import urlretrieve
 from datetime import datetime, timedelta, tzinfo
-from mpl_toolkits.basemap import shiftgrid
-
 from flask import Flask, request
-from flask_cors import CORS
 app = Flask(__name__)
-CORS(app)
 
 nam_nomads_url = 'http://nomads.ncep.noaa.gov/cgi-bin/'
 
@@ -136,7 +132,7 @@ def pline():
             if hazard_level in ['yellow', 'red']:
                 pline['temp'] = round((human_friendly_temp * (9/5)) + 32)
                 pline['precip'] = round(human_friendly_precip, 2)
-                pline['frozen_precip'] = gridpoint_frozen_precip
+                pline['frozen_precip'] = int(gridpoint_frozen_precip)
             polylines.append(pline)
             previous_point = {'lat':point[0], 'lng':point[1]}
             #print hazard_level
@@ -152,5 +148,6 @@ def pline():
                 #previous_hazard_level = hazard_level
     return json.dumps(polylines)
             
+if __name__ == '__main__':
+    app.run()
 
-app.run()

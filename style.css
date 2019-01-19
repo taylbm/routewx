@@ -1,7 +1,7 @@
 /* Always set the map height explicitly to define the size of the div
    element that contains the map. */
 #map {
-  height: 800px;
+  height: 600px;
   width: 100%;
 }
 /* Optional: Makes the sample page fill the window. */
@@ -47,4 +47,29 @@ html, body {
   z-index: 99;
   display: none;
 }
-
+#legend {
+  font-family: Arial, sans-serif;
+  background: #fff;
+  padding: 10px;
+  margin: 10px;
+  border: 3px solid #000;
+}
+#green-div{
+  background-color:green;
+  width: 80px;
+  height: 50px;
+}
+#yellow-div{
+  background-color:yellow;
+  width: 80px;
+  height: 50px;
+}#red-div{
+  background-color:red;
+  width: 80px;
+  height: 50px;
+}
+#info-box{
+  background-color:white;
+  width:80px;
+  height:65px;
+}

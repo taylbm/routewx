@@ -4,16 +4,34 @@
     <title>RouteWx</title>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
+     <!-- Google Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-97013135-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics -->
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
     <header class="page-header">
-      <h1>RouteWx</h1>
+      <h2>RouteWx</h2>
     </header>
     <div id="content">
       <div id="map"></div>
       <div id="loader-gif-div">
         <img id="loader-gif"/>
+      </div>
+      <div id="legend">
+        <h3>Legend</h3>
+        <div id="green-div">Green - No Hazardous Weather</div>
+        <div id="yellow-div">Yellow - Light to Moderate Precip/Non-Freezing</div>
+        <div id="red-div">Red - Heavy and/or Freezing Precip</div>
+        <div id="info-box">*Hover over the route with your cursor to inspect temperature and precip</div>
       </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -21,7 +39,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
       var map;
-      var polylineURI = "http://localhost:5000/polyline";
+      var polylineURI = "/api/polyline";
       var now = new Date();
       var modelInit = new Date();
       var nowUTCHour = now.getUTCHours();
@@ -43,7 +61,8 @@
         var load_border = document.createElement('div');
         var load_text = document.createElement('div');
         var time_picker = document.createElement('input');
-        var loaderGIF = document.getElementById('loader-gif-div')
+        var loaderGIF = document.getElementById('loader-gif-div');
+        var legend = document.getElementById('legend');
         var origin_autocomplete = new google.maps.places.Autocomplete(origin_input);
         var destination_autocomplete = new google.maps.places.Autocomplete(destination_input);
         var origin_place_id = null;
@@ -94,7 +113,7 @@
               loaderGIF.style.display = "block";
               var overviewPolyline = response.routes[0].overview_polyline;
               var duration = response.routes[0].legs[0].duration.value;
-              var selectedDateUTC = selectedDate.getTime() / 1e3;
+              var selectedDateUTC = Math.round(selectedDate.getTime() / 1e3);
               console.log(selectedDateUTC)
               var route_info = {
                                  'overview_polyline':overviewPolyline, 
@@ -158,6 +177,7 @@
         map.controls[google.maps.ControlPosition.TOP_LEFT].push(origin_input);
         map.controls[google.maps.ControlPosition.TOP_LEFT].push(destination_input);
         map.controls[google.maps.ControlPosition.TOP_LEFT].push(time_picker);
+        map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
         origin_autocomplete.addListener('place_changed', function() {
           var place = origin_autocomplete.getPlace();
           if (!place.geometry) {
@@ -188,6 +208,10 @@
         });
         load_text.addEventListener("click", function() {
           var selectedDate = fp.latestSelectedDateObj;
+          console.log(selectedDate)
+          if (typeof(selectedDate) == 'undefined') {
+              var selectedDate = new Date();
+          }            
           if (polylines.length > 0) {
             $.each(polylines, function(idx, line) {
                 line.setMap(null);
@@ -198,9 +222,8 @@
         });
 
       }
-    var myKey = "AIzaSyBwJb8JdCBDHqZF0plgSI2LNeZVaKBz0Hc";
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDT7Xvae77wHoMFhRSQDIR7RrQsStsuUM4&libraries=places&callback=initMap" async defer></script>
-    <footer>&copy 2019 Brandon Taylor</footer>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCVjjiRPA99hze8wqybcJ6KxD1Cqr_DnG4&libraries=places&callback=initMap" async defer></script>
+    <footer>&copy 2019 <a class="LI-simple-link" href='https://www.linkedin.com/in/taylor-bm?trk=profile-badge'>Brandon Taylor</a></footer>
   </body>
 </html>
