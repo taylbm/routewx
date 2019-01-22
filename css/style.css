@@ -1,17 +1,16 @@
 /* Always set the map height explicitly to define the size of the div
    element that contains the map. */
 #map {
-  height: 600px;
-  width: 100%;
-}
-/* Optional: Makes the sample page fill the window. */
-html, body {
-  height: 95%;
-  margin: 1%;
-  padding: 0;
+  position: absolute;
+  height: 90%;
+  width: 98%;
 }
 .page-header {
   text-align: center;
+}
+footer {
+  position: absolute;
+  bottom: 0px;
 }
 .control-button-border { 
   background-color: #fff;
@@ -55,21 +54,24 @@ html, body {
   border: 3px solid #000;
 }
 #green-div{
+  display: inline-block;
   background-color:green;
-  width: 80px;
-  height: 50px;
+  width: 110px;
+  height: 30px;
 }
 #yellow-div{
+  display: inline-block;
   background-color:yellow;
-  width: 80px;
-  height: 50px;
+  width: 130px;
+  height: 30px;
 }#red-div{
+  display: inline-block;
   background-color:red;
-  width: 80px;
-  height: 50px;
+  width: 110px;
+  height: 30px;
 }
 #info-box{
   background-color:white;
-  width:80px;
-  height:65px;
+  width:100%;
+  height:10px;
 }
