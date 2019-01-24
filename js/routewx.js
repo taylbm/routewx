@@ -1,5 +1,10 @@
 var map;
 var polylineURI = "/api/polyline";
+var NamConusBounds = {'minLat':21.1379, 
+                      'minLon':-134.0961, 
+                      'maxLat':52.6156,
+                      'maxLon':-60.9178
+}
 var now = new Date();
 var modelInit = new Date();
 var nowUTCHour = now.getUTCHours();
@@ -11,6 +16,16 @@ modelInit.setUTCHours(modelInitHour);
 modelInit.setUTCMinutes(0);
 var latestDeparture = new Date(modelInit.getTime() + 59 * 3600 * 1e3);
 var polylines = [];
+function boundsCheck(loc) {
+  var locLat = loc.lat()
+  var locLon = loc.lng()
+  console.log(locLat, locLon)
+  var minLat = locLat > NamConusBounds['minLat']
+  var minLon = locLon > NamConusBounds['minLon']
+  var maxLat = locLat < NamConusBounds['maxLat']
+  var maxLon = locLon < NamConusBounds['maxLon']
+  return minLat && minLon && maxLat && maxLon
+}
 function initMap() {
   var infoWindow = new google.maps.InfoWindow();
   var directionsService = new google.maps.DirectionsService();
@@ -147,11 +162,15 @@ function initMap() {
       window.alert("Autocomplete's returned place contains no geometry");
       return;
     }
-    // If the place has a geometry, store its place ID and route if we have
-    // the other place ID
-    origin_place_id = place.place_id;
-    //route(origin_place_id, destination_place_id, travel_mode,
-    //      directionsService, directionsDisplay);
+    bounds = boundsCheck(place.geometry.location)
+    if (bounds) {
+      // If the place has a geometry, store its place ID and route if we have
+      // the other place ID
+      origin_place_id = place.place_id;
+    }
+    else {
+      alert("Selected location is outside of NAM 3-km CONUS domain, which covers most of North America. Please select another location.")
+    }
   });
   destination_autocomplete.addListener('place_changed', function() {
     var place = destination_autocomplete.getPlace();
@@ -159,11 +178,15 @@ function initMap() {
       window.alert("Autocomplete's returned place contains no geometry");
       return;
     }
-    // If the place has a geometry, store its place ID and route if we have
-    // the other place ID
-    destination_place_id = place.place_id;
-    //route(origin_place_id, destination_place_id, travel_mode,
-    //      directionsService, directionsDisplay);
+    bounds = boundsCheck(place.geometry.location)
+    if (bounds) {
+      // If the place has a geometry, store its place ID and route if we have
+      // the other place ID
+      destination_place_id = place.place_id;
+    }
+    else {
+      alert("Selected location is outside of NAM 3-km CONUS domain, which covers most of North America. Please select another location.")
+    }
   });
   load_text.addEventListener("click", function() {
     var selectedDate = fp.latestSelectedDateObj;
@@ -179,4 +202,6 @@ function initMap() {
     route(origin_place_id, destination_place_id, travel_mode,
 	directionsService, directionsDisplay, selectedDate);
   });
+  legend = document.getElementById('legend');
+  legend.style.display = "block";
 }

@@ -49,20 +49,16 @@ def pline():
     if 0 < model_init_date.hour < 6:
         model_init_date = model_init_date - timedelta(days=1)
     model_init_hour = 0 if 6 < model_init_date.hour < 18 else 12
-    print model_init_hour, departure_time.hour
     model_init_date = model_init_date.replace(hour=model_init_hour, minute=0, second=0)
     divisions = 1 if duration == 0 else duration 
     divided = np.array_split(polyline_arr, divisions)    
     init_hour = model_init_date.strftime('t%Hz')
     init_date = model_init_date.strftime('%Y%m%d')
-    print init_date
-    prog_hour = round((departure_time - model_init_date).seconds / 3600.)
+    prog_hour = int(((departure_time - model_init_date).total_seconds())/ 3600)
     nam_grb_req = "filter_nam_conusnest.pl?file=nam."+init_hour+".conusnest.hiresf.tm00.grib2&lev_2_m_above_ground=on&lev_surface=on&var_APCP=on&&var_CPOFP=on&var_TMP=on&subregion=&leftlon=&rightlon=&toplat=&bottomlat=&dir=%2Fnam."+init_date
     start_lat = divided[0][0][0]
     start_lon = divided[0][0][1]
     polylines = []
-    #previous_polyline = {'coords':[{'lat':start_lat, 'lng':start_lon}]}
-    #polyline_template = {'coords':[{'lat':start_lat, 'lng':start_lon}]}
     previous_point = {'lat':start_lat, 'lng':start_lon}
     previous_hazard_level = None
     prog_hour_iterate = 0
