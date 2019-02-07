@@ -15,35 +15,61 @@
     ga('send', 'pageview');
     </script>
     <!-- End Google Analytics -->
+    <link rel="icon" type="image/png" href="favicon.ico">
     <link href="https://fonts.googleapis.com/css?family=Didact+Gothic" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="style.css">
-    <link rel="stylesheet" type="text/css" href="/header.css">
+    <link rel="stylesheet" type="text/css" href="header.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-mobile/1.4.5/jquery.mobile.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   </head>
   <body>
-    <header class="header-login-signup">
-      <div class="header-limiter">
-	<h1><a href="https://routewx.com">Route<span>Wx</span></a></h1>
-          <nav>
-	    <a href="https://routewx.com">Home</a>
-	    <a href="mailto:contact@routewx.com" class="selected">Contact</a>
-	  </nav>
+    <div data-role="page">
+      <header class="header-login-signup">
+        <a style="float:left" href="https://www.facebook.com/routewx/"><img src="/fb.png" width="24"></img></a>
+        <div class="header-limiter">
+	  <h1><a style="color:white" href="https://routewx.com">Route<span>Wx</span></a></h1>
+            <nav>
+	      <a href="/">Home</a>
+	      <a href="mailto:contact@routewx.com">Contact</a>
+              <a href="#control-panel" id="select-route" style="font-size:large; font-style:italic;" class="selected">Select Route</a>
+	    </nav>
+        </div>
+      </header>
+      <div id="content">
+        <div id="map"></div>
+        <div id="loader-gif-div">
+          <img id="loader-gif"/>
+        </div>
       </div>
-    </header>
-    <div id="content">
-      <div id="map"></div>
-      <div id="loader-gif-div">
-        <img id="loader-gif"/>
+      <div id="control-panel" data-display="overlay" data-role="panel">
+        <input class="controls control-text" type="text" id="origin-input" placeholder="Start">
+        <input class="controls control-text" type="text" id="destination-input" placeholder="End">
+        <label for="time-picker">Departure Date/Time:</label>
+        <input class="controls timePicker" type="date" id="time-picker" value="">
+        <button class="ui-btn ui-shadow ui-icon-navigation ui-btn-icon-left control-text" data-rel="close" id="loadDirections">Load Directions</button>
+        <div id="legend" style="display:none">
+          <h3 style="margin:0px;">Legend:</h3>
+          <div id="green-div">No Hazardous Weather</div>
+          <div id="yellow-div">Light to Moderate Precip (Non-Freezing)</div>
+          <div id="red-div">Heavy and/or Freezing Precip</div>
+          <div id="info-box">*Hover over/tap the route with your cursor/finger to inspect temperature and precip</div>
+        </div>
+        <button class="ui-btn ui-shadow ui-icon-delete ui-btn-icon-left" href="#" data-rel="close">Close</button>
+        <p style="font-size: 0.6em;">*Disclaimer: The information displayed here is provided as guidance, to be used alongside other sources of information, such as current road conditions from the transportation department in your local jurisdiction. The data provided comes from raw weather model output, without human intervention, and is only representative of weather conditions, not road conditions. For information on professional meteorological consulting from this dataset, email: contact@routewx.com*</p>
       </div>
-      <div id="legend" style="display:none">
-        <h3 style="margin:0px;">Legend:</h3>
-        <div id="green-div">No Hazardous Weather</div>
-        <div id="yellow-div">Light to Moderate Precip (Non-Freezing)</div>
-        <div id="red-div">Heavy and/or Freezing Precip</div>
-        <div id="info-box">*Hover over the route with your cursor to inspect temperature and precip</div>
+      <div data-role="popup" id="popupResults" data-overlay-theme="b" data-theme="b" data-dismissible="false" style="max-width:400px;">
+        <div data-role="header" data-theme="a">
+          <h1 id="travelGuidance" style="margin:0;">RouteWx Travel Guidance</h1>
+        </div>
+        <div role="main" class="ui-content">
+          <h3 id="hazards" class="ui-title"></h3>
+          <p id="moreInfo"></p>
+          <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-b" data-rel="back">OK</a>
+        </div>
       </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mobile/1.4.5/jquery.mobile.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="routewx.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCVjjiRPA99hze8wqybcJ6KxD1Cqr_DnG4&libraries=places&callback=initMap" async defer></script>

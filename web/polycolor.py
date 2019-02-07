@@ -1,11 +1,7 @@
-import sys
 import numpy as np
-import haversine
 import polyline
 import pygrib
 import json
-import subprocess
-import requests
 import tempfile
 import copy
 from urllib import urlretrieve
@@ -14,7 +10,7 @@ import time
 from flask import Flask, request
 app = Flask(__name__)
 
-nam_nomads_url = 'http://nomads.ncep.noaa.gov/cgi-bin/'
+nam_nomads_url = 'https://nomads.ncep.noaa.gov/cgi-bin/'
 
 def nearest_gridpoint(lats, lons, point_lat, point_lon, data):
     abslat = np.abs(lats - point_lat)
@@ -46,20 +42,22 @@ def pline():
     departure_time = int(request.args.get('departure_time'))
     departure_time = datetime.utcfromtimestamp(departure_time)
     model_init_date = datetime.now()
-    if 0 < model_init_date.hour < 6:
+    if 0 <= model_init_date.hour <= 6:
         model_init_date = model_init_date - timedelta(days=1)
     model_init_hour = 0 if 6 < model_init_date.hour < 18 else 12
-    model_init_date = model_init_date.replace(hour=model_init_hour, minute=0, second=0)
+    model_init_date = model_init_date.replace(hour=model_init_hour, 
+                                              minute=0, second=0)
     divisions = 1 if duration == 0 else duration 
     divided = np.array_split(polyline_arr, divisions)    
     init_hour = model_init_date.strftime('t%Hz')
     init_date = model_init_date.strftime('%Y%m%d')
-    prog_hour = int(((departure_time - model_init_date).total_seconds())/ 3600)
-    nam_grb_req = "filter_nam_conusnest.pl?file=nam."+init_hour+".conusnest.hiresf.tm00.grib2&lev_2_m_above_ground=on&lev_surface=on&var_APCP=on&&var_CPOFP=on&var_TMP=on&subregion=&leftlon=&rightlon=&toplat=&bottomlat=&dir=%2Fnam."+init_date
+    prog_hour = abs(int(((departure_time - model_init_date).total_seconds())/ 3600))
+    nam_grb_req = "filter_nam_conusnest.pl?file=nam."+init_hour+".conusnest.hiresf.tm00.grib2&lev_2_m_above_ground=on&lev_surface=on&var_APCP=on&var_CPOFP=on&var_TMP=on&subregion=&leftlon=&rightlon=&toplat=&bottomlat=&dir=%2Fnam."+init_date
     start_lat = divided[0][0][0]
     start_lon = divided[0][0][1]
     polylines = []
     previous_point = {'lat':start_lat, 'lng':start_lon}
+    print 'Start:', previous_point
     previous_hazard_level = None
     prog_hour_iterate = 0
     for chunk in divided:
@@ -112,6 +110,7 @@ def pline():
                 pline['prog_date_epoch'] = prog_date_epoch
             polylines.append(pline)
             previous_point = {'lat':point[0], 'lng':point[1]}
+    print 'End:', previous_point
     return json.dumps(polylines)
             
 if __name__ == '__main__':

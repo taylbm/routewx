@@ -30,41 +30,15 @@ function initMap() {
   var infoWindow = new google.maps.InfoWindow();
   var directionsService = new google.maps.DirectionsService();
   var directionsDisplay = new google.maps.DirectionsRenderer();
-  var origin_input = document.createElement('input');
-  var destination_input = document.createElement('input');
-  var load_div = document.createElement('div');
-  var load_border = document.createElement('div');
-  var load_text = document.createElement('div');
-  var time_picker = document.createElement('input');
+  var origin_input = $('#origin-input')[0];
+  var destination_input = $('#destination-input')[0];
+  var timePicker = $('#time-picker')[0];
   var loaderGIF = document.getElementById('loader-gif-div');
-  var legend = document.getElementById('legend');
   var origin_autocomplete = new google.maps.places.Autocomplete(origin_input);
   var destination_autocomplete = new google.maps.places.Autocomplete(destination_input);
   var origin_place_id = null;
   var destination_place_id = null;
   var travel_mode = 'DRIVING';
-  function buildHTML() {
-    origin_input.className += "controls control-text";
-    origin_input.type = "text";
-    origin_input.id = "origin-input";
-    origin_input.placeholder = "Start";
-    destination_input.className += "controls control-text";
-    destination_input.type = "text";
-    destination_input.id = "destination-input";
-    destination_input.placeholder = "End";
-    load_div.id = "load-div";
-    load_border.className += "controls control-button-border";
-    load_border.title = "Click to load directions with highlighted weather hazards";
-    load_text.id = "load";
-    load_text.className += "control-text";
-    load_text.innerHTML = "Load Directions";
-    load_border.appendChild(load_text);
-    load_div.appendChild(load_border);
-    time_picker.className += "controls timePicker";
-    time_picker.type = "text";
-    time_picker.id = "timePicker";
-    time_picker.placeholder = "Please select a departure date/time";
-  }
   function expandViewportToFitPlace(map, place) {
    if (place.geometry.viewport) {
      map.fitBounds(place.geometry.viewport);
@@ -124,10 +98,20 @@ function initMap() {
 	      });
 	    }
 	  })
-	  if (clearRoute)
-	    window.alert("Weather along the route is all clear for now, based on your time of departure!")
-	  else
-	    window.alert("There could be hazardous weather along the route, based on your time of departure!")  
+	  if (clearRoute) {
+            $('#travelGuidance').css('background-color','darkseagreen');
+            $('#hazards').html("Weather along the route is all clear for now!");
+            $('#moreInfo').html("This information is based on your time of departure of: " + selectedDate.toLocaleString());
+            $('#popupResults').popup("open");
+	    //window.alert("Weather along the route is all clear for now, based on your time of departure of: " + selectedDate.toLocaleString())
+          }
+	  else {
+            $('#travelGuidance').css('background-color','yellow');
+            $('#hazards').html("There could be hazardous weather along the route!");
+            $('#moreInfo').html("This information is based on your time of departure of: " + selectedDate.toLocaleString() + ". Check the map for more details (Map legend located in the route selection menu).");
+            $('#popupResults').popup("open");
+	    //window.alert("There could be hazardous weather along the route, based on your time of departure: " + selectedDate.toLocaleString() + ". Check the map for more details (Map legend located in the route selection menu).") 
+          }
         }).fail(function() {
 	  alert("Error loading model data, please try again")
         });
@@ -141,7 +125,6 @@ function initMap() {
     center: {lat: 35.1765, lng: -97.2886},
     zoom: 8
   });
-  buildHTML();
   directionsDisplay.setMap(map);
   origin_autocomplete.bindTo('bounds', map);
   destination_autocomplete.bindTo('bounds', map);
@@ -150,12 +133,7 @@ function initMap() {
 		     minDate: "today",
 		     maxDate: latestDeparture
   }   
-  const fp = flatpickr(time_picker, flatpickr_config);
-  map.controls[google.maps.ControlPosition.TOP_RIGHT].push(load_div);
-  map.controls[google.maps.ControlPosition.TOP_LEFT].push(origin_input);
-  map.controls[google.maps.ControlPosition.TOP_LEFT].push(destination_input);
-  map.controls[google.maps.ControlPosition.TOP_LEFT].push(time_picker);
-  map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(legend);
+  const fp = flatpickr(timePicker, flatpickr_config);
   origin_autocomplete.addListener('place_changed', function() {
     var place = origin_autocomplete.getPlace();
     if (!place.geometry) {
@@ -188,7 +166,7 @@ function initMap() {
       alert("Selected location is outside of NAM 3-km CONUS domain, which covers most of North America. Please select another location.")
     }
   });
-  load_text.addEventListener("click", function() {
+  $('#loadDirections').click(function(){
     var selectedDate = fp.latestSelectedDateObj;
     console.log(selectedDate)
     if (typeof(selectedDate) == 'undefined') {

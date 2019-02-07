@@ -1,5 +1,8 @@
 /* Always set the map height explicitly to define the size of the div
    element that contains the map. */
+html, body {
+  font-family: 'Didact Gothic', sans-serif !important;
+}
 #map {
   position: absolute;
   height: 90%;
@@ -23,7 +26,6 @@ footer {
 }
 .control-text {
   color: rgb(25,25,25);
-  font-family: Roboto,Arial,sans-serif;
   font-size: 16px;
   line-height: 38px;
   padding-left: 5px;
@@ -31,7 +33,7 @@ footer {
 }
 .timePicker {
   width: 315px;
-  font-size: 20px;
+  font-size: 16px;
 }
 .controls {
   margin: 10px;
@@ -42,12 +44,11 @@ footer {
 #loader-gif-div {
   position: absolute;
   top: 50%;
-  left: 50%;
+  left: 40%;
   z-index: 99;
   display: none;
 }
 #legend {
-  font-family: Arial, sans-serif;
   background: #fff;
   padding: 10px;
   margin: 10px;
@@ -56,22 +57,30 @@ footer {
 #green-div{
   display: inline-block;
   background-color:green;
-  width: 110px;
-  height: 30px;
+  width: 100%;
+  text-shadow:none;
+  color: black;
 }
 #yellow-div{
   display: inline-block;
   background-color:yellow;
-  width: 130px;
-  height: 30px;
+  width: 100%;
+  text-shadow:none;
+  color: black;
 }#red-div{
   display: inline-block;
   background-color:red;
-  width: 110px;
-  height: 30px;
+  width: 100%;
+  text-shadow:none;
+  color: black;
 }
 #info-box{
   background-color:white;
   width:100%;
-  height:10px;
+}
+.pac-container{
+  z-index:9999;
+}
+#popupResults{
+  z-index:9999;
 }
