@@ -1,21 +1,45 @@
-import numpy as np
-import polyline
-import pygrib
+"""
+Filename: polycolor.py
+Purpose: Flask web server script, with a request handler
+         for creating a Google Maps Directions API polyline
+         with weather hazards overlayed as colors, 
+         analogous to the traffic colors.
+Author: Brandon Taylor
+Date: 2019-01-06
+© Copyright 2019 Brandon Taylor.
+"""
 import json
 import tempfile
 import copy
 from urllib import urlretrieve
 from datetime import datetime, timedelta, tzinfo
 import time
+import numpy as np
+import polyline
+import pygrib
 from flask import Flask, request
 app = Flask(__name__)
 
-nam_nomads_url = 'https://nomads.ncep.noaa.gov/cgi-bin/'
+NAM_NOMADS_URL = 'https://nomads.ncep.noaa.gov/cgi-bin/'
 
 def nearest_gridpoint(lats, lons, point_lat, point_lon, data):
+    """
+    Finds the nearest-neighbor in the gridded model data to any 
+    arbitrary lat/lon point.
+    @param {np.ndarray} lats - 2-D numpy array of grid latitude
+    @param {np.ndarray} lons - 2-D numpy array of grid longitude
+    @param {float} point_lat - selected point latitude
+    @param {float} point_lon - selected point longitude
+    @param {tuple} data - contains the model fields accumulated precipitation,
+                          2 metre temperature, and percent chance of frozen 
+                          precipitation. The fields are 2-D numpy array of same 
+                          shape as gridded lats/lons.
+    @return {tuple} - contains the nearest gridpoint temperature, precip and percent
+                      chance of frozen precip to the selected point.
+    """
     abslat = np.abs(lats - point_lat)
     abslon = np.abs(lons - point_lon)
-    c = np.maximum(abslon,abslat)
+    c = np.maximum(abslon, abslat)
     latlon_idx = np.argmin(c)
     gridpoint_temp = data[0].flat[latlon_idx]
     gridpoint_precip = data[1].flat[latlon_idx]
@@ -23,6 +47,14 @@ def nearest_gridpoint(lats, lons, point_lat, point_lon, data):
     return (gridpoint_temp, gridpoint_precip, gridpoint_frozen_precip)
 
 def weather_check(temp, precip):
+    """
+    Does unit conversions and checks for heavy or frozen precip.
+    @param {float} temp - temperature in units of Kelvin
+    @param {float} precip - precip in units of kg/m^2 (nearly equivalent to mm)
+    @return {tuple} - contains the hazard level color (green, yellow, or red),
+                      and temperature and precipitation converted to celcius and
+                      inches, respectively.
+    """
     temp = temp - 273
     precip = precip * 0.039
     hazard_level = 'green'
@@ -35,6 +67,14 @@ def weather_check(temp, precip):
     
 @app.route('/polyline')
 def pline():
+    """
+    This request handler accepts a Google Maps Directions API
+    polyline, and checks weather conditions at each point along the
+    line. The line is chunked into hour segments, and the model data is
+    only downloaded for the subregion that these hour long segments cover.
+    Returns a colored polyline, with hazard levels, and other weather 
+    conditions embedded within.
+    """ 
     encoded_polyline = request.args.get('overview_polyline')
     decoded_polyline = polyline.decode(encoded_polyline)
     polyline_arr = np.asarray(decoded_polyline)
@@ -81,7 +121,7 @@ def pline():
         nam_grb_req_current = nam_grb_req_current.replace('resf', 'resf'+prog_hour_str)
         print nam_grb_req_current
         temp_grbs = tempfile.NamedTemporaryFile()
-        raw_grbs = urlretrieve(nam_nomads_url + nam_grb_req_current, temp_grbs.name)
+        raw_grbs = urlretrieve(NAM_NOMADS_URL + nam_grb_req_current, temp_grbs.name)
         #raw_grbs = urlretrieve(nam_nomads_url + nam_grb_req_current, '/home/btaylor/routewx/grib_sample_data/'+nam_grb_req_current)
         #print raw_grbs
         #continue
