@@ -42,15 +42,15 @@
         </div>
       </div>
       <div id="control-panel" data-display="overlay" data-role="panel">
-        <input class="controls control-text" type="text" id="origin-input" placeholder="Start">
-        <input class="controls control-text" type="text" id="destination-input" placeholder="End">
+        <input class="controls control-text" data-clear-btn="true" type="text" id="origin-input" placeholder="Start">
+        <input class="controls control-text" data-clear-btn="true" type="text" id="destination-input" placeholder="End">
         <label for="time-picker">Departure Date/Time:</label>
-        <input class="controls timePicker" type="date" id="time-picker" value="">
+        <input class="controls timePicker" type="text" id="time-picker" value="">
         <button class="ui-btn ui-shadow ui-icon-navigation ui-btn-icon-left control-text" data-rel="close" id="loadDirections">Load Directions</button>
         <div id="legend" style="display:none">
           <h3 style="margin:0px;">Legend:</h3>
           <div id="green-div">No Hazardous Weather</div>
-          <div id="yellow-div">Light to Moderate Precip (Non-Freezing)</div>
+          <div id="orange-div">Light to Moderate Precip (Non-Freezing)</div>
           <div id="red-div">Heavy and/or Freezing Precip</div>
           <div id="info-box">*Hover over/tap the route with your cursor/finger to inspect temperature and precip</div>
         </div>

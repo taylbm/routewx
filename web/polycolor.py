@@ -6,7 +6,7 @@ Purpose: Flask web server script, with a request handler
          analogous to the traffic colors.
 Author: Brandon Taylor
 Date: 2019-01-06
-© Copyright 2019 Brandon Taylor.
+Copyright 2019 Brandon Taylor.
 """
 import json
 import tempfile
@@ -51,7 +51,7 @@ def weather_check(temp, precip):
     Does unit conversions and checks for heavy or frozen precip.
     @param {float} temp - temperature in units of Kelvin
     @param {float} precip - precip in units of kg/m^2 (nearly equivalent to mm)
-    @return {tuple} - contains the hazard level color (green, yellow, or red),
+    @return {tuple} - contains the hazard level color (green, orange, or red),
                       and temperature and precipitation converted to celcius and
                       inches, respectively.
     """
@@ -62,7 +62,7 @@ def weather_check(temp, precip):
         if temp <= 0 or precip > 10:
             hazard_level = 'red'
         else:
-            hazard_level = 'yellow'
+            hazard_level = 'orange'
     return (hazard_level, temp, precip)
     
 @app.route('/polyline')
@@ -92,13 +92,15 @@ def pline():
     init_hour = model_init_date.strftime('t%Hz')
     init_date = model_init_date.strftime('%Y%m%d')
     prog_hour = abs(int(((departure_time - model_init_date).total_seconds())/ 3600))
-    nam_grb_req = "filter_nam_conusnest.pl?file=nam."+init_hour+".conusnest.hiresf.tm00.grib2&lev_2_m_above_ground=on&lev_surface=on&var_APCP=on&var_CPOFP=on&var_TMP=on&subregion=&leftlon=&rightlon=&toplat=&bottomlat=&dir=%2Fnam."+init_date
+    nam_grb_req = ("filter_nam_conusnest.pl?file=nam." + init_hour +
+                  ".conusnest.hiresf.tm00.grib2&lev_2_m_above_ground" +
+                  "=on&lev_surface=on&var_APCP=on&var_CPOFP=on&var_TMP=on&subregion" +
+                  "=&leftlon=&rightlon=&toplat=&bottomlat=&dir=%2Fnam." + init_date)
     start_lat = divided[0][0][0]
     start_lon = divided[0][0][1]
     polylines = []
     previous_point = {'lat':start_lat, 'lng':start_lon}
     print 'Start:', previous_point
-    previous_hazard_level = None
     prog_hour_iterate = 0
     for chunk in divided:
         lat_start = chunk[0][0] 
@@ -122,15 +124,8 @@ def pline():
         print nam_grb_req_current
         temp_grbs = tempfile.NamedTemporaryFile()
         raw_grbs = urlretrieve(NAM_NOMADS_URL + nam_grb_req_current, temp_grbs.name)
-        #raw_grbs = urlretrieve(nam_nomads_url + nam_grb_req_current, '/home/btaylor/routewx/grib_sample_data/'+nam_grb_req_current)
-        #print raw_grbs
-        #continue
         grbs = pygrib.open(temp_grbs.name)
-        #grbs = pygrib.open('/home/btaylor/routewx/grib_sample_data/'+nam_grb_req_current)
-        #for grb in grbs:
-        #    print grb
         temp = grbs.select(name='2 metre temperature')[0]
-        temp.values = temp.values
         precip = grbs.select(name='Total Precipitation')[0]
         frozen_precip = grbs.select(name='Percent frozen precipitation')[0]
         lats, lons = temp.latlons()
@@ -143,10 +138,10 @@ def pline():
             pline = {}
             pline['hazard_level'] = hazard_level
             pline['coords'] = [previous_point, {'lat':point[0], 'lng':point[1]}]
-            if hazard_level in ['yellow', 'red']:
+            if hazard_level in ['orange', 'red', 'green']:
                 pline['temp'] = round((human_friendly_temp * (9/5)) + 32)
                 pline['precip'] = round(human_friendly_precip, 2)
-                pline['frozen_precip'] = abs(int(gridpoint_frozen_precip))
+                pline['frozen_precip'] = int(gridpoint_frozen_precip)
                 pline['prog_date_epoch'] = prog_date_epoch
             polylines.append(pline)
             previous_point = {'lat':point[0], 'lng':point[1]}

@@ -38,7 +38,11 @@ function initMap() {
   var destination_autocomplete = new google.maps.places.Autocomplete(destination_input);
   var origin_place_id = null;
   var destination_place_id = null;
+  var origin_name = null;
+  var destination_name = null;
   var travel_mode = 'DRIVING';
+  var originLoc = null;
+  var destinationLoc = null;
   function expandViewportToFitPlace(map, place) {
    if (place.geometry.viewport) {
      map.fitBounds(place.geometry.viewport);
@@ -48,7 +52,8 @@ function initMap() {
    }
   }
   function route(origin_place_id, destination_place_id, travel_mode,
-	   directionsService, directionsDisplay, selectedDate) {
+	   directionsService, directionsDisplay, selectedDate,
+           origin_name, destination_name) {
     if (!origin_place_id || !destination_place_id) {
       return;
     }
@@ -59,14 +64,17 @@ function initMap() {
     }, function(response, status) {
       if (status === 'OK') {
         directionsDisplay.setDirections(response);
+        map.fitBounds(directionsDisplay.getDirections().routes[0].bounds);
         loaderGIF.style.display = "block";
         var overviewPolyline = response.routes[0].overview_polyline;
         var duration = response.routes[0].legs[0].duration.value;
         var selectedDateUTC = Math.round(selectedDate.getTime() / 1e3);
         var route_info = {
-			 'overview_polyline':overviewPolyline, 
-			 'duration':duration, 
-			 'departure_time': selectedDateUTC
+			 'overview_polyline': overviewPolyline, 
+			 'duration': duration, 
+			 'departure_time': selectedDateUTC,
+                         'start_name': origin_name,
+                         'end_name': destination_name
         };
         $.getJSON(polylineURI, route_info, function(data) {
   	  loaderGIF.style.display = "none";
@@ -84,19 +92,20 @@ function initMap() {
 	    });
 	    seg.setMap(map);
 	    polylines.push(seg);
-	    if ( hazardLevel == 'yellow' || hazardLevel == 'red' ) {
-	      clearRoute = false;
-	      google.maps.event.addListener(seg, 'mouseover', function(e) {
-	        infoWindow.setPosition(e.latLng);
-	        d = new Date(0);
-	        d.setUTCSeconds(segment['prog_date_epoch'])
-	        infoWindow.setContent("Temp: " + segment['temp'] + "\xB0 F, 1 hr. precip: " + segment['precip'] + "in.\n Chance Frozen Precip: "+segment['frozen_precip'] +"%<br>Forecast valid up to 1 hr. from: "+d.toLocaleString());
-	        infoWindow.open(map);
-	      });
-	      google.maps.event.addListener(seg, 'mouseout', function() {
-	        infoWindow.close();
-	      });
-	    }
+            clearRoute = hazardLevel == 'green';
+	    google.maps.event.addListener(seg, 'mouseover', function(e) {
+	      infoWindow.setPosition(e.latLng);
+	      d = new Date(0);
+	      d.setUTCSeconds(segment['prog_date_epoch'])
+              var frozenPrecip = segment['frozen_precip'] < 0 ? 0 : segment['frozen_precip']
+	      infoWindow.setContent("Temp: " + segment['temp'] + "\xB0 F, 1 hr. precip: " + 
+                                    segment['precip'] + " in.\n Chance Frozen Precip: "+frozenPrecip 
+                                    +"%<br>Forecast valid up to 1 hr. from: "+d.toLocaleString());
+	      infoWindow.open(map);
+	    });
+	    google.maps.event.addListener(seg, 'mouseout', function() {
+	      infoWindow.close();
+	    });
 	  })
 	  if (clearRoute) {
             $('#travelGuidance').css('background-color','darkseagreen');
@@ -106,7 +115,7 @@ function initMap() {
 	    //window.alert("Weather along the route is all clear for now, based on your time of departure of: " + selectedDate.toLocaleString())
           }
 	  else {
-            $('#travelGuidance').css('background-color','yellow');
+            $('#travelGuidance').css('background-color','orange');
             $('#hazards').html("There could be hazardous weather along the route!");
             $('#moreInfo').html("This information is based on your time of departure of: " + selectedDate.toLocaleString() + ". Check the map for more details (Map legend located in the route selection menu).");
             $('#popupResults').popup("open");
@@ -131,7 +140,18 @@ function initMap() {
   flatpickr_config = {
 		     enableTime: true,
 		     minDate: "today",
-		     maxDate: latestDeparture
+		     maxDate: latestDeparture,
+                     defaultDate: now,
+                     altFormat: "Y-m-d h:i K",
+                     altInput: true,
+                     onChange: function(selectedDates, dateStr, instance) {
+                       if ((selectedDates[0] - now) < 0) {
+                         alert("Please pick a date/time now or in the future!")
+                       }
+                       else if (selectedDates[0] > latestDeparture) {
+                         alert("Latest prognosticable departure time is: " + latestDeparture.toLocaleString())
+                       }
+                     }
   }   
   const fp = flatpickr(timePicker, flatpickr_config);
   origin_autocomplete.addListener('place_changed', function() {
@@ -140,11 +160,13 @@ function initMap() {
       window.alert("Autocomplete's returned place contains no geometry");
       return;
     }
-    bounds = boundsCheck(place.geometry.location)
+    bounds = boundsCheck(place.geometry.location);
+    originLoc = place.geometry.location;
     if (bounds) {
       // If the place has a geometry, store its place ID and route if we have
       // the other place ID
       origin_place_id = place.place_id;
+      origin_name = place.name
     }
     else {
       alert("Selected location is outside of NAM 3-km CONUS domain, which covers most of North America. Please select another location.")
@@ -156,11 +178,13 @@ function initMap() {
       window.alert("Autocomplete's returned place contains no geometry");
       return;
     }
-    bounds = boundsCheck(place.geometry.location)
+    bounds = boundsCheck(place.geometry.location);
+    destinationLoc = place.geometry.location;
     if (bounds) {
       // If the place has a geometry, store its place ID and route if we have
       // the other place ID
       destination_place_id = place.place_id;
+      destination_name = place.name;
     }
     else {
       alert("Selected location is outside of NAM 3-km CONUS domain, which covers most of North America. Please select another location.")
@@ -177,8 +201,13 @@ function initMap() {
 	line.setMap(null);
       });
     }
+    //sw = destinationLoc.lat() < originLoc.lat()
+    //bounds = new google.maps.LatLngBounds([{'lat':
+     //map.setCenter(recenterLocation);
+     //map.setZoom(17);
     route(origin_place_id, destination_place_id, travel_mode,
-	directionsService, directionsDisplay, selectedDate);
+	directionsService, directionsDisplay, selectedDate,
+        origin_name, destination_name);
   });
   legend = document.getElementById('legend');
   legend.style.display = "block";
