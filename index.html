@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   </head>
   <body>
-    <div data-role="page">
+    <div id="main-page" data-role="page">
       <header class="header-login-signup">
         <a style="float:left" href="https://www.facebook.com/routewx/"><img src="/fb.png" width="24"></img></a>
         <div class="header-limiter">
@@ -37,9 +37,6 @@
       </header>
       <div id="content">
         <div id="map"></div>
-        <div id="loader-gif-div">
-          <img id="loader-gif"/>
-        </div>
       </div>
       <div id="control-panel" data-display="overlay" data-role="panel">
         <input class="controls control-text" data-clear-btn="true" type="text" id="origin-input" placeholder="Start">
@@ -55,7 +52,19 @@
           <div id="info-box">*Hover over/tap the route with your cursor/finger to inspect temperature and precip</div>
         </div>
         <button class="ui-btn ui-shadow ui-icon-delete ui-btn-icon-left" href="#" data-rel="close">Close</button>
-        <p style="font-size: 0.6em;">*Disclaimer: The information displayed here is provided as guidance, to be used alongside other sources of information, such as current road conditions from the transportation department in your local jurisdiction. The data provided comes from raw weather model output, without human intervention, and is only representative of weather conditions, not road conditions. For information on professional meteorological consulting from this dataset, email: contact@routewx.com*</p>
+      </div>
+      <div data-role="popup" id="popupDisclaimer" data-dismissible="false" style="max-width:400px;">
+        <div data-role="header" data-theme="a">
+          <h1 style="margin:0;">Terms of Use</h1>
+        </div>
+        <div role="main" class="ui-content">
+          <p>The information displayed here is provided as guidance, 
+          to be used alongside other sources of information, such as current road conditions from the transportation 
+          department in your local jurisdiction. The data provided comes from raw weather model output, 
+          without human intervention, and is only representative of weather conditions, not road conditions.</p>
+          <h4 style="text-align:center">For information on professional meteorological consulting from this dataset, email: contact@routewx.com</h4>
+         <a id="acceptTerms" class="ui-btn ui-corner-all ui-shadow ui-btn-b">Accept</a>
+        </div>
       </div>
       <div data-role="popup" id="popupResults" data-overlay-theme="b" data-theme="b" data-dismissible="false" style="max-width:400px;">
         <div data-role="header" data-theme="a">
@@ -64,8 +73,31 @@
         <div role="main" class="ui-content">
           <h3 id="hazards" class="ui-title"></h3>
           <p id="moreInfo"></p>
-          <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-b" data-rel="back">OK</a>
+          <a class="ui-btn ui-corner-all ui-shadow ui-btn-b">OK</a>
         </div>
+      </div>
+      <div data-role="popup" id="popupFeedback" data-theme="a" class="ui-corner-all">
+          <form id="feedbackForm">
+          <div style="padding:10px 20px;">
+            <h3>Submit Feedback</h3>
+            <div class="ui-field-contain">
+              <label for="feedback-type">Feedback Type:</label>
+              <select name="feedback-type" id="feedback-type" data-native-menu="false">
+                <option value="feature">Feature Request</option>
+                <option value="general">General Feedback</option>
+                <option value="request">Professional Meteorological Consulting Request</option>
+                <option value="bug">Bug Report</option>
+              </select>
+            </div>
+            <label for="name" class="ui-hidden-accessible">Name:</label>
+            <input type="text" name="name" id="name" value="" placeholder="Name">
+            <label for="email" class="ui-hidden-accessible">Email:</label>
+            <input type="text" name="email" id="email" value="" placeholder="Email (optional)">
+            <label for="feedback">Feedback:</label>
+            <textarea name="feedback" id="feedback"></textarea>
+            <button class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check">Submit</button>
+          </div>
+          <form>
       </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>

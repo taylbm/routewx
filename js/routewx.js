@@ -33,7 +33,6 @@ function initMap() {
   var origin_input = $('#origin-input')[0];
   var destination_input = $('#destination-input')[0];
   var timePicker = $('#time-picker')[0];
-  var loaderGIF = document.getElementById('loader-gif-div');
   var origin_autocomplete = new google.maps.places.Autocomplete(origin_input);
   var destination_autocomplete = new google.maps.places.Autocomplete(destination_input);
   var origin_place_id = null;
@@ -65,7 +64,7 @@ function initMap() {
       if (status === 'OK') {
         directionsDisplay.setDirections(response);
         map.fitBounds(directionsDisplay.getDirections().routes[0].bounds);
-        loaderGIF.style.display = "block";
+        $.mobile.loading("show");
         var overviewPolyline = response.routes[0].overview_polyline;
         var duration = response.routes[0].legs[0].duration.value;
         var selectedDateUTC = Math.round(selectedDate.getTime() / 1e3);
@@ -77,7 +76,7 @@ function initMap() {
                          'end_name': destination_name
         };
         $.getJSON(polylineURI, route_info, function(data) {
-  	  loaderGIF.style.display = "none";
+          $.mobile.loading("hide");
 	  directionsDisplay.setMap(null);
 	  polylines = [];
 	  var clearRoute = true;
@@ -201,14 +200,21 @@ function initMap() {
 	line.setMap(null);
       });
     }
-    //sw = destinationLoc.lat() < originLoc.lat()
-    //bounds = new google.maps.LatLngBounds([{'lat':
-     //map.setCenter(recenterLocation);
-     //map.setZoom(17);
     route(origin_place_id, destination_place_id, travel_mode,
 	directionsService, directionsDisplay, selectedDate,
         origin_name, destination_name);
   });
+  $('#feedbackForm').on("submit", function(e) {
+    e.preventDefault();
+    var data = $(this).serializeArray();
+    console.log(data)
+  });
   legend = document.getElementById('legend');
   legend.style.display = "block";
+  setTimeout(function () {
+    $('#popupDisclaimer').popup('open');
+  }, 500); // delay above zero
+  $('#acceptTerms').on("click", function() {
+    $('#popupDisclaimer').popup('close');
+  });
 }

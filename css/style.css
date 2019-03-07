@@ -38,16 +38,6 @@ footer {
 .controls {
   margin: 10px;
 }
-#loader-gif {
-  content:url("https://media.giphy.com/media/y1ZBcOGOOtlpC/giphy.gif");
-}
-#loader-gif-div {
-  position: absolute;
-  top: 50%;
-  left: 40%;
-  z-index: 99;
-  display: none;
-}
 #legend {
   font-family: Arial, sans-serif;
   background: #fff;

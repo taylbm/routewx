@@ -17,7 +17,7 @@ import time
 import numpy as np
 import polyline
 import pygrib
-from flask import Flask, request
+from flask import Flask, request, flash
 app = Flask(__name__)
 
 NAM_NOMADS_URL = 'https://nomads.ncep.noaa.gov/cgi-bin/'
@@ -147,6 +147,12 @@ def pline():
             previous_point = {'lat':point[0], 'lng':point[1]}
     print 'End:', previous_point
     return json.dumps(polylines)
+
+@app.route('/feedback', methods=['POST'])
+def feedback():
+    data = request.form
+    flash(data)
+    return redirect('/')
             
 if __name__ == '__main__':
     app.run()
