@@ -30,7 +30,7 @@
 	  <h1><a style="color:white" href="https://routewx.com">Route<span>Wx</span></a></h1>
             <nav>
 	      <a href="/">Home</a>
-	      <a href="mailto:contact@routewx.com">Contact</a>
+	      <a data-rel="popup" data-position-to="window" href="#popupFeedback">Contact/Bug Report</a>
               <a href="#control-panel" id="select-route" style="font-size:large; font-style:italic;" class="selected">Select Route</a>
 	    </nav>
         </div>
@@ -63,7 +63,7 @@
           department in your local jurisdiction. The data provided comes from raw weather model output, 
           without human intervention, and is only representative of weather conditions, not road conditions.</p>
           <h4 style="text-align:center">For information on professional meteorological consulting from this dataset, email: contact@routewx.com</h4>
-         <a id="acceptTerms" class="ui-btn ui-corner-all ui-shadow ui-btn-b">Accept</a>
+         <button id="acceptTerms" class="ui-btn ui-corner-all ui-shadow ui-btn-b" data-rel="close">Accept</button>
         </div>
       </div>
       <div data-role="popup" id="popupResults" data-overlay-theme="b" data-theme="b" data-dismissible="false" style="max-width:400px;">
@@ -73,7 +73,8 @@
         <div role="main" class="ui-content">
           <h3 id="hazards" class="ui-title"></h3>
           <p id="moreInfo"></p>
-          <a class="ui-btn ui-corner-all ui-shadow ui-btn-b">OK</a>
+          <p>*Hover over/tap the route with your cursor/finger to inspect temperature and precip</p>
+          <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-b">OK</a>
         </div>
       </div>
       <div data-role="popup" id="popupFeedback" data-theme="a" class="ui-corner-all">

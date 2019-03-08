@@ -107,14 +107,14 @@ function initMap() {
 	    });
 	  })
 	  if (clearRoute) {
-            $('#travelGuidance').css('background-color','darkseagreen');
+            $('#travelGuidance').css('background-color','green');
             $('#hazards').html("Weather along the route is all clear for now!");
             $('#moreInfo').html("This information is based on your time of departure of: " + selectedDate.toLocaleString());
             $('#popupResults').popup("open");
 	    //window.alert("Weather along the route is all clear for now, based on your time of departure of: " + selectedDate.toLocaleString())
           }
 	  else {
-            $('#travelGuidance').css('background-color','orange');
+            $('#travelGuidance').css('background-color','red');
             $('#hazards').html("There could be hazardous weather along the route!");
             $('#moreInfo').html("This information is based on your time of departure of: " + selectedDate.toLocaleString() + ". Check the map for more details (Map legend located in the route selection menu).");
             $('#popupResults').popup("open");
@@ -207,13 +207,15 @@ function initMap() {
   $('#feedbackForm').on("submit", function(e) {
     e.preventDefault();
     var data = $(this).serializeArray();
-    console.log(data)
+    $.post('/api/feedback', data, function() {
+      $('#popupFeedback').popup("close");
+    });
   });
   legend = document.getElementById('legend');
   legend.style.display = "block";
   setTimeout(function () {
     $('#popupDisclaimer').popup('open');
-  }, 500); // delay above zero
+  }, 1000);
   $('#acceptTerms').on("click", function() {
     $('#popupDisclaimer').popup('close');
   });

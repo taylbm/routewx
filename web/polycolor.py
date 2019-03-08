@@ -151,8 +151,8 @@ def pline():
 @app.route('/feedback', methods=['POST'])
 def feedback():
     data = request.form
-    flash(data)
-    return redirect('/')
+    print data
+    return 'sucess'
             
 if __name__ == '__main__':
     app.run()

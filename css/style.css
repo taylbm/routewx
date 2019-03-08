@@ -39,7 +39,6 @@ footer {
   margin: 10px;
 }
 #legend {
-  font-family: Arial, sans-serif;
   background: #fff;
   padding: 10px;
   margin: 10px;
@@ -74,4 +73,8 @@ footer {
 }
 #popupResults{
   z-index:9999;
+}
+#travelGuidance {
+  color:white;
+  text-shadow: 1px 1px 1px black;
 }
