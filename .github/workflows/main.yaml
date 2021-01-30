@@ -21,5 +21,5 @@ jobs:
       - name: build dist package
         run: mkdir dist; cp -r img dist; cp -r js dist; cp -r css dist; cp index.html dist;
       - name: Deploy static site dist to S3
-        run: aws s3 sync ./dist/ s3://routewx/dist --delete
+        run: aws s3 sync ./dist/ s3://routewx/ --delete
 
