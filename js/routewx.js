@@ -1,5 +1,5 @@
 var map;
-var polylineURI = "/api/polyline";
+var polylineURI = "/api/v1/directions";
 var NamConusBounds = {'minLat':21.1379, 
                       'minLon':-134.0961, 
                       'maxLat':52.6156,
@@ -25,6 +25,9 @@ function boundsCheck(loc) {
   var maxLat = locLat < NamConusBounds['maxLat']
   var maxLon = locLon < NamConusBounds['maxLon']
   return minLat && minLon && maxLat && maxLon
+}
+function setHeader(xhr) {
+  xhr.setRequestHeader('x-api-key', '2E8RT6KZQo7OUEPakTOMO2XKgGQrC7s71UjfT9l2');
 }
 function initMap() {
   var infoWindow = new google.maps.InfoWindow();
@@ -68,6 +71,7 @@ function initMap() {
         var overviewPolyline = response.routes[0].overview_polyline;
         var duration = response.routes[0].legs[0].duration.value;
         var selectedDateUTC = Math.round(selectedDate.getTime() / 1e3);
+        /*
         var route_info = {
 			 'overview_polyline': overviewPolyline, 
 			 'duration': duration, 
@@ -75,68 +79,76 @@ function initMap() {
                          'start_name': origin_name,
                          'end_name': destination_name
         };
-        $.getJSON(polylineURI, route_info, function(data) {
-          $.mobile.loading("hide");
-	  directionsDisplay.setMap(null);
-	  polylines = [];
-	  var clearRoute = true;
-	  $.each(data, function(idx, segment) {
-	    var hazardLevel = segment['hazard_level']
-	    var seg = new google.maps.Polyline({
-	    path: segment['coords'],
-	    geodesic: true,
-	    strokeColor: hazardLevel,
-	    strokeOpacity: 0.6,
-	    strokeWeight: 4
-	    });
-	    seg.setMap(map);
-	    polylines.push(seg);
-            clearRoute = hazardLevel == 'green';
-	    google.maps.event.addListener(seg, 'mouseover', function(e) {
-	      infoWindow.setPosition(e.latLng);
-	      d = new Date(0);
-	      d.setUTCSeconds(segment['prog_date_epoch'])
-              var frozenPrecip = segment['frozen_precip'] < 0 ? 0 : segment['frozen_precip']
-	      infoWindow.setContent("Temp: " + segment['temp'] + "\xB0 F, 1 hr. precip: " + 
+        */
+        var xhr = new XMLHttpRequest();
+        const requestString = `${polylineURI}?start=${origin_name}&end=${end_name}&departure_date=${selectedDateUTC}`
+        $.ajax({
+          url: requestString,
+          type: 'GET',
+          datatype: 'json',
+          success: function(data) {
+            $.mobile.loading("hide");
+	    directionsDisplay.setMap(null);
+	    polylines = [];
+	    var clearRoute = true;
+	    $.each(data, function(idx, segment) {
+	      var hazardLevel = segment['hazard_level']
+	      var seg = new google.maps.Polyline({
+	        path: segment['coords'],
+	        geodesic: true,
+	        strokeColor: hazardLevel,
+	        strokeOpacity: 0.6,
+	        strokeWeight: 4
+	      });
+	      seg.setMap(map);
+	      polylines.push(seg);
+              clearRoute = hazardLevel == 'green';
+	      google.maps.event.addListener(seg, 'mouseover', function(e) {
+	        infoWindow.setPosition(e.latLng);
+	        d = new Date(0);
+	        d.setUTCSeconds(segment['prog_date_epoch'])
+                var frozenPrecip = segment['frozen_precip'] < 0 ? 0 : segment['frozen_precip']
+	        infoWindow.setContent("Temp: " + segment['temp'] + "\xB0 F, 1 hr. precip: " + 
                                     segment['precip'] + " in.\n Chance Frozen Precip: "+frozenPrecip 
                                     +"%<br>Forecast valid up to 1 hr. from: "+d.toLocaleString());
-	      infoWindow.open(map);
+	        infoWindow.open(map);
+	      });
+	      google.maps.event.addListener(seg, 'mouseout', function() {
+	        infoWindow.close();
+	      });
 	    });
-	    google.maps.event.addListener(seg, 'mouseout', function() {
-	      infoWindow.close();
-	    });
-	  })
-	  if (clearRoute) {
-            $('#travelGuidance').css('background-color','green');
-            $('#hazards').html("Weather along the route is all clear for now!");
-            $('#moreInfo').html("This information is based on your time of departure of: " + selectedDate.toLocaleString());
-            $('#popupResults').popup("open");
-	    //window.alert("Weather along the route is all clear for now, based on your time of departure of: " + selectedDate.toLocaleString())
-          }
-	  else {
-            $('#travelGuidance').css('background-color','red');
-            $('#hazards').html("There could be hazardous weather along the route!");
-            $('#moreInfo').html("This information is based on your time of departure of: " + selectedDate.toLocaleString() + ". Check the map for more details (Map legend located in the route selection menu).");
-            $('#popupResults').popup("open");
-	    //window.alert("There could be hazardous weather along the route, based on your time of departure: " + selectedDate.toLocaleString() + ". Check the map for more details (Map legend located in the route selection menu).") 
-          }
-        }).fail(function() {
-	  alert("Error loading model data, please try again")
+	    if (clearRoute) {
+              $('#travelGuidance').css('background-color','green');
+              $('#hazards').html("Weather along the route is all clear for now!");
+              $('#moreInfo').html("This information is based on your time of departure of: " + selectedDate.toLocaleString());
+              $('#popupResults').popup("open");
+	      //window.alert("Weather along the route is all clear for now, based on your time of departure of: " + selectedDate.toLocaleString())
+            }
+	    else {
+              $('#travelGuidance').css('background-color','red');
+              $('#hazards').html("There could be hazardous weather along the route!");
+              $('#moreInfo').html("This information is based on your time of departure of: " + selectedDate.toLocaleString() + ". Check the map for more details (Map legend located in the route selection menu).");
+              $('#popupResults').popup("open");
+	      //window.alert("There could be hazardous weather along the route, based on your time of departure: " + selectedDate.toLocaleString() + ". Check the map for more details (Map legend located in the route selection menu).") 
+            }
+          },
+          error: function() { alert('Error loading model data, please try again!'); },
+          beforeSend: setHeader
         });
-      }  
+      }   
       else {
-        window.alert('Directions request failed due to ' + status);
+          window.alert('Directions request failed due to ' + status);
       }
     });
-  }
-  map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: 35.1765, lng: -97.2886},
-    zoom: 8
-  });
-  directionsDisplay.setMap(map);
-  origin_autocomplete.bindTo('bounds', map);
-  destination_autocomplete.bindTo('bounds', map);
-  flatpickr_config = {
+    }
+    map = new google.maps.Map(document.getElementById('map'), {
+      center: {lat: 35.1765, lng: -97.2886},
+      zoom: 8
+    });
+    directionsDisplay.setMap(map);
+    origin_autocomplete.bindTo('bounds', map);
+    destination_autocomplete.bindTo('bounds', map);
+    flatpickr_config = {
 		     enableTime: true,
 		     minDate: "today",
 		     maxDate: latestDeparture,
