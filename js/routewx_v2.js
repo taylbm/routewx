@@ -81,7 +81,7 @@ function initMap() {
         };
         */
         var xhr = new XMLHttpRequest();
-        const requestString = `${polylineURI}?start=${origin_name}&end=${end_name}&departure_date=${selectedDateUTC}`
+        const requestString = `${polylineURI}?start=${origin_name}&end=${destination_name}&departure_date=${selectedDateUTC}`
         $.ajax({
           url: requestString,
           type: 'GET',
