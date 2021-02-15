@@ -1,5 +1,5 @@
 var map;
-var polylineURI = "/api/v1/directions";
+var polylineURI = "https://baepe3yyu1.execute-api.us-east-1.amazonaws.com/v1/directions";
 var NamConusBounds = {'minLat':21.1379, 
                       'minLon':-134.0961, 
                       'maxLat':52.6156,
@@ -81,7 +81,7 @@ function initMap() {
         };
         */
         var xhr = new XMLHttpRequest();
-        const requestString = `${polylineURI}?start=${origin_name}&end=${destination_name}&departure_date=${selectedDateUTC}`
+        const requestString = `${polylineURI}?start=${origin_name}&end=${destination_name}&departure_time=${selectedDateUTC}`
         $.ajax({
           url: requestString,
           type: 'GET',
