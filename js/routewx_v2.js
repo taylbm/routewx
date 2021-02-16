@@ -91,45 +91,48 @@ function initMap() {
 	    directionsDisplay.setMap(null);
 	    polylines = [];
 	    var clearRoute = true;
-	    $.each(data, function(idx, segment) {
-	      var hazardLevel = segment['hazard_level']
-	      var seg = new google.maps.Polyline({
-	        path: segment['coords'],
-	        geodesic: true,
-	        strokeColor: hazardLevel,
-	        strokeOpacity: 0.6,
-	        strokeWeight: 4
-	      });
-	      seg.setMap(map);
-	      polylines.push(seg);
-              clearRoute = hazardLevel == 'green';
-	      google.maps.event.addListener(seg, 'mouseover', function(e) {
-	        infoWindow.setPosition(e.latLng);
-	        d = new Date(0);
-	        d.setUTCSeconds(segment['prog_date_epoch'])
-                var frozenPrecip = segment['frozen_precip'] < 0 ? 0 : segment['frozen_precip']
-	        infoWindow.setContent("Temp: " + segment['temp'] + "\xB0 F, 1 hr. precip: " + 
+            if (data.message == "Success") {  
+	      $.each(data.polylines, function(idx, segment) {
+	        var hazardLevel = segment['hazard_level']
+	        var seg = new google.maps.Polyline({
+	          path: segment['coords'],
+	          geodesic: true,
+	          strokeColor: hazardLevel,
+	          strokeOpacity: 0.6,
+	          strokeWeight: 4
+	        });
+	        seg.setMap(map);
+	        polylines.push(seg);
+                clearRoute = hazardLevel == 'green';
+	        google.maps.event.addListener(seg, 'mouseover', function(e) {
+	          infoWindow.setPosition(e.latLng);
+	          d = new Date(0);
+	          d.setUTCSeconds(segment['prog_date_epoch'])
+                  var frozenPrecip = segment['frozen_precip'] < 0 ? 0 : segment['frozen_precip']
+	          infoWindow.setContent("Temp: " + segment['temp'] + "\xB0 F, 1 hr. precip: " + 
                                     segment['precip'] + " in.\n Chance Frozen Precip: "+frozenPrecip 
                                     +"%<br>Forecast valid up to 1 hr. from: "+d.toLocaleString());
-	        infoWindow.open(map);
+	          infoWindow.open(map);
+	        });
+	        google.maps.event.addListener(seg, 'mouseout', function() {
+	          infoWindow.close();
+	        });
 	      });
-	      google.maps.event.addListener(seg, 'mouseout', function() {
-	        infoWindow.close();
-	      });
-	    });
-	    if (clearRoute) {
-              $('#travelGuidance').css('background-color','green');
-              $('#hazards').html("Weather along the route is all clear for now!");
-              $('#moreInfo').html("This information is based on your time of departure of: " + selectedDate.toLocaleString());
-              $('#popupResults').popup("open");
-	      //window.alert("Weather along the route is all clear for now, based on your time of departure of: " + selectedDate.toLocaleString())
+	      if (clearRoute) {
+                $('#travelGuidance').css('background-color','green');
+                $('#hazards').html("Weather along the route is all clear for now!");
+                $('#moreInfo').html("This information is based on your time of departure of: " + selectedDate.toLocaleString());
+                $('#popupResults').popup("open");
+              }
+	      else {
+                $('#travelGuidance').css('background-color','red');
+                $('#hazards').html("There could be hazardous weather along the route!");
+                $('#moreInfo').html("This information is based on your time of departure of: " + selectedDate.toLocaleString() + ". Check the map for more details (Map legend located in the route selection menu).");
+                $('#popupResults').popup("open");
+              }
             }
-	    else {
-              $('#travelGuidance').css('background-color','red');
-              $('#hazards').html("There could be hazardous weather along the route!");
-              $('#moreInfo').html("This information is based on your time of departure of: " + selectedDate.toLocaleString() + ". Check the map for more details (Map legend located in the route selection menu).");
-              $('#popupResults').popup("open");
-	      //window.alert("There could be hazardous weather along the route, based on your time of departure: " + selectedDate.toLocaleString() + ". Check the map for more details (Map legend located in the route selection menu).") 
+            else {
+              alert(data.message)
             }
           },
           error: function() { alert('Error loading model data, please try again!'); },
