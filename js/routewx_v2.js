@@ -71,15 +71,6 @@ function initMap() {
         var overviewPolyline = response.routes[0].overview_polyline;
         var duration = response.routes[0].legs[0].duration.value;
         var selectedDateUTC = Math.round(selectedDate.getTime() / 1e3);
-        /*
-        var route_info = {
-			 'overview_polyline': overviewPolyline, 
-			 'duration': duration, 
-			 'departure_time': selectedDateUTC,
-                         'start_name': origin_name,
-                         'end_name': destination_name
-        };
-        */
         var xhr = new XMLHttpRequest();
         const requestString = `${polylineURI}?start=${origin_name}&end=${destination_name}&departure_time=${selectedDateUTC}`
         $.ajax({
@@ -145,12 +136,46 @@ function initMap() {
     });
     }
     map = new google.maps.Map(document.getElementById('map'), {
-      center: {lat: 35.1765, lng: -97.2886},
-      zoom: 8
+      center: {lat: 41, lng: -100},
+      zoom: 8,
+      maxZoom: 8,
     });
+    // Replace this with your URL.
+    var TILE_URL = "https://mrms-tiles.s3.amazonaws.com/latest/{z}/{x}/{y}.png";
+
+    // Name the layer anything you like.
+    var layerID = "MRMS";
+
+    // Create a new ImageMapType layer.
+    var layer = new google.maps.ImageMapType({
+      name: layerID,
+      getTileUrl: function(coord, zoom) {
+        var url = TILE_URL
+          .replace("{x}", coord.x)
+          .replace("{y}", coord.y)
+          .replace("{z}", zoom);
+        return url;
+      },
+      tileSize: new google.maps.Size(256, 256),
+      opacity: 0.7,
+      minZoom: 4,
+      maxZoom: 8
+    });
+
+    setInterval(function (){
+      //this will change the zoom of the map  
+      map.setZoom(map.getZoom()+.01);
+      //this will change the zoom again and load fresh tiles
+      map.setZoom(Math.round(map.getZoom()));
+
+    }, 120000);
+
+    map.overlayMapTypes.insertAt(0, layer);
+
     directionsDisplay.setMap(map);
     origin_autocomplete.bindTo('bounds', map);
     destination_autocomplete.bindTo('bounds', map);
+
     flatpickr_config = {
 		     enableTime: true,
 		     minDate: "today",

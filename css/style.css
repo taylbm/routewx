@@ -78,3 +78,7 @@ footer {
   color:white;
   text-shadow: 1px 1px 1px black;
 }
+#select-route{
+  font-size:x-large; 
+  text-decoration: underline;
+}
