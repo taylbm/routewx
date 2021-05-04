@@ -136,10 +136,29 @@ function initMap() {
     });
     }
     map = new google.maps.Map(document.getElementById('map'), {
-      center: {lat: 41, lng: -100},
+      center: {lat: 40.6, lng: -105},
       zoom: 8,
       maxZoom: 8,
     });
+
+    // Try HTML5 geolocation.
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          map.setCenter(pos);
+        },
+        () => {
+          handleLocationError(true, infoWindow, map.getCenter());
+        }
+      );
+    } else {
+      // Browser doesn't support Geolocation
+    }
+  
     // Replace this with your URL.
     var TILE_URL = "https://mrms-tiles.s3.amazonaws.com/latest/{z}/{x}/{y}.png";
 
