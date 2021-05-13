@@ -50,7 +50,7 @@ function initMap() {
      map.fitBounds(place.geometry.viewport);
    } else {
      map.setCenter(place.geometry.location);
-     map.setZoom(17);
+     map.setZoom(8);
    }
   }
   function route(origin_place_id, destination_place_id, travel_mode,
