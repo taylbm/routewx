@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Route Weather</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="css/fly-over.css" rel="stylesheet">
+    <link href="css/routeweather.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+    <script src="js/jQDateRangeSlider-min.js"></script>
+</head>
+<header class="c-header">
+
+    <div class="c-header__wrapper o-wrapper">
+      <div>
+      <div style="display: inline-block; width: 100%;">
+          <h1 class="c-logo">Route Weather</h1>
+      </div>
+      <div style="display: inline-block; width: 100%;">
+          <h2 id="datetime-display"></h2>
+      </div>
+      </div>
+      <div class="c-nav">
+
+        <input class="c-nav__check" id="navmobile" type="checkbox" style="display: none;"/>
+        <label style="font-size: 36px;" class="c-nav__btn material-icons" 
+               for="navmobile" onclick="" 
+               aria-label="switch to open-close nav menu">menu</label>
+        <nav class="c-nav__container">
+          <label class="c-nav__btn c-nav__btn--close material-icons" 
+                 for="navmobile" onclick=""
+                 aria-label="switch to open-close nav menu">close</label>
+          <label class="c-nav__click-guard" 
+                 for="navmobile" aria-hidden="true"></label>
+          <ul class="c-nav__list">
+            <li class="c-nav__item">
+                <table id="shsr-legend">
+                    <tr>
+                    <th id="shsr-datetime" colspan=16>Seamless Hybrid Scan Reflectivity (dBZ)</th>
+                    </tr>
+                    <tr style="color: blanchedalmond;">
+                    <td width="5%" class="legend-cell" style="text-align: center; font-size: 12px;">N/D</td>
+                    <td width="5%" class="legend-cell" style="text-align: center; font-size: 12px;">0</td>
+                    <td width="5%" class="legend-cell" style="text-align: center; font-size: 12px;">5</td>
+                    <td width="5%" class="legend-cell" style="text-align: center; font-size: 12px;">10</td>
+                    <td width="5%" class="legend-cell" style="text-align: center; font-size: 12px;">15</td>
+                    <td width="5%" class="legend-cell" style="text-align: center; font-size: 12px;">20</td>
+                    <td width="5%" class="legend-cell" style="text-align: center; font-size: 12px;">25</td>
+                    <td width="5%" class="legend-cell" style="text-align: center; font-size: 12px;">30</td>
+                    <td width="5%" class="legend-cell" style="text-align: center; font-size: 12px;">35</td>
+                    <td width="5%" class="legend-cell" style="text-align: center; font-size: 12px;">40</td>
+                    <td width="5%" class="legend-cell" style="text-align: center; font-size: 12px;">45</td>
+                    <td width="5%" class="legend-cell" style="text-align: center; font-size: 12px;">50</td>
+                    <td width="5%" class="legend-cell" style="text-align: center; font-size: 12px;">55</td>
+                    <td width="5%" class="legend-cell" style="text-align: center; font-size: 12px;">60</td>
+                    <td width="5%" class="legend-cell" style="text-align: center; font-size: 12px;">65</td>
+                    <td width="5%" class="legend-cell" style="text-align: center; font-size: 12px;">70</td>
+                    </tr>
+                    <tr>
+                    <td height="20" style="background-color:rgba(209, 209, 209, 0); border: 1px solid black;"></td>
+                    <td height="20" style="background-color:rgb(140, 157, 170); border: 1px solid black;"></td>
+                    <td height="20" style="background-color:rgba(57, 57, 201, 0.623); border: 1px solid black;"></td>
+                    <td height="20" style="background-color:rgb(0, 0, 255);border: 1px solid black;"></td>
+                    <td height="20" style="background-color:rgb(0, 255, 200);border: 1px solid black;"></td>
+                    <td height="20" style="background-color:rgb(116, 255, 129);border: 1px solid black;"></td>
+                    <td height="20" style="background-color:rgb(151, 216, 0);border: 1px solid black;"></td>
+                    <td height="20" style="background-color:rgb(253, 249, 7);border: 1px solid black;"></td>
+                    <td height="20" style="background-color:rgb(255, 102, 0);border: 1px solid black;"></td>
+                    <td height="20" style="background-color:rgb(255, 72, 0);border: 1px solid black;"></td>
+                    <td height="20" style="background-color:rgb(233, 35, 0);border: 1px solid black;"></td>
+                    <td height="20" style="background-color:rgb(209, 0, 0);border: 1px solid black;"></td>
+                    <td height="20" style="background-color:rgb(137, 0, 0);border: 1px solid black;"></td>
+                    <td height="20" style="background-color:rgb(154, 76, 149);border: 1px solid black;"></td>
+                    <td height="20" style="background-color:rgb(240, 140, 174);border: 1px solid black;"></td>
+                    <td height="20" style="background-color:rgb(193, 165, 176);border: 1px solid black;"></td>
+                    </tr>
+                </table>            
+            </li>
+            <li class="c-nav__item">
+                <i class="material-icons">disabled_visible</i> <span>SHSR Visible</span>
+                <input onclick="visibleClick(this)" class="visible-checkbox" checked id="shsr-visible" type="checkbox"/>
+                <div class="slider-wrapper">
+                    <label for="shsr-opacity-slider">Opacity</label>
+                    <input type="range" min="0" max="1" value="0.85" id="shsr-opacity-slider" step="0.01">
+                    <output for="shsr-opacity-slider" id="shsr-slider-value">0.85</output>
+                </div>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  
+  </header>
+<main class="c-main o-wrapper">
+    <img onclick="playAnimation()" id="play-button" src="img/play-button.png"/>
+    <img onclick="pauseAnimation()" id="pause-button" src="img/pause-button.png"/>
+    <div id="animation-slider-wrapper" class="slider-wrapper">
+        <label for="animation-delay-slider">Animation Delay</label>
+        <input type="range" min="200" max="1000" value="200" id="animation-delay-slider" step="10">
+        <output for="animation-delay-slider" id="animation-delay-value">200 ms</output>
+    </div>
+    <div id="date-range-slider-wrapper">
+        <div id="date-range-slider"></div>
+    </div>
+    <div id="map"></div>
+    <script src="js/routeweather-mapbox-animation.js"></script>
+</main>
+</html>
