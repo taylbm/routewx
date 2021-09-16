@@ -19,7 +19,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       - name: build dist package
-        run: mkdir dist; cp -r img dist; cp -r js dist; cp -r css dist; cp index.html dist; cp -r bio dist; cp -r privacy dist;
+        run: mkdir dist; cp -r img dist; cp -r js dist; cp -r css dist; cp index.html dist; cp -r bio dist; cp -r privacy dist; cp beta_v2.html dist;
       - name: Deploy static site dist to S3
         run: aws s3 sync ./dist/ s3://routewx/ --delete
 
