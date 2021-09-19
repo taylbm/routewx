@@ -1,9 +1,19 @@
 body { margin: 0; padding: 0; }
 .visible-checkbox {width: 50px; height: 30px;}
 #datetime-display {text-align: right; margin-left: 30%; color: blanchedalmond; opacity: 0.75; bottom: 0px;}
-#play-button {position: absolute; z-index: 99; width: 50px; left: 1%; bottom: 5%; background: black; opacity: 0.75; border-radius: 5px;}
-#pause-button {position: absolute; z-index: 99; width: 50px; left: 4%; bottom: 5%; background:white; opacity: 0.75; border-radius: 5px;}
-#animation-slider-wrapper {position: absolute; z-index: 99; left: 10%; bottom: 5%; background:white; opacity: 0.75; padding: 1%; width: 18%;}
+
+#play-button {width: 5%; left: 1%; background: black; opacity: 0.75; border-radius: 5px;}
+#pause-button {width: 5%; left: 20%; background:white; opacity: 0.75; border-radius: 5px;}
+@media only screen and (max-width: 600px) {
+    #play-button {width: 15%; left: 2%; background: black; opacity: 0.75; border-radius: 5px;}
+    #pause-button {width: 15%; left: 21%; background:white; opacity: 0.75; border-radius: 5px;}
+}
+
+#animation-slider-wrapper {position: absolute; z-index: 99; left: 1%; bottom: 12%; background:white; opacity: 0.75; padding: 1%; width: 15%;}
+@media only screen and (max-width: 600px) {
+    #animation-slider-wrapper {position: absolute; z-index: 99; left: 1%; bottom: 15%; background:white; opacity: 0.75; padding: 1%; width: 40%;}
+}
+#animation-controls-wrapper {position: absolute; z-index: 99; bottom: 3%;}
 .legend-cell {background-color: black; opacity: 0.8;}
 #map { position: absolute; top: 0; bottom: 0; width: 100%; }
 #msl-qpe-legend {color: #388BF7; text-shadow: 2px 2px 2px black;}
