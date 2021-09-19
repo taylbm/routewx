@@ -5,14 +5,16 @@ var RTWX = {
     "animation-duration": 0,
     "total-frames": 30,
     "interval-id": null,
-    "currentFrameName": null,
-    "tileRoot": "https://mbtiles.routewx.com/services/",
-    "dateSliderInit": false,
+    "current-frame-name": null,
+    "tile-root": "https://mbtiles.routewx.com/services/",
+    "date-slider-init": false,
     "frames": []
 }
 
+//Use the async library, to hit the tile api, returning the availables dates (frames)
+
 const getAvailableFrames = async () => {
-    const response = await fetch(RTWX["tileRoot"]) // get list of available frames
+    const response = await fetch(RTWX["tile-root"]) // get list of available frames
     const frames = await response.json() // parse JSON
 
     const totalFrames = RTWX["total-frames"]
@@ -54,12 +56,12 @@ const getAvailableFrames = async () => {
             return val.toLocaleString()
         }
     });
-    RTWX["dateSliderInit"] = true
+    RTWX["date-slider-init"] = true
 }
 function showRasterLayer(frameName) {
     if (RTWX["shsr-visible"]) {
         var duration = RTWX["animation-duration"]
-        RTWX["currentFrameName"] = frameName
+        RTWX["current-frame-name"] = frameName
         var opacity = RTWX["shsr-opacity"]
         map.setPaintProperty(frameName, 'raster-opacity-transition', {duration:duration, delay: duration})
         map.setPaintProperty(frameName, 'raster-opacity', opacity)
@@ -104,7 +106,7 @@ function playAnimation() {
         }
     }
 
-    if (RTWX["dateSliderInit"]) {
+    if (RTWX["date-slider-init"]) {
         $("#date-range-slider").dateRangeSlider("destroy");
     }
 
@@ -165,7 +167,6 @@ function playAnimation() {
         }
 
         
-        document.getElementById("datetime-display").innerHTML = currentFrameDate.toLocaleString() + " - " + Intl.DateTimeFormat().resolvedOptions().timeZone
         showRasterLayer(currentFrameName)
         currentFrame += 1
     }, delay);
@@ -288,10 +289,11 @@ var map = new mapboxgl.Map({
 
 $("#date-range-slider").on("userValuesChanged", function(e, data){
     const layerName = getLayerName(data.values.max)
-    hideRasterLayer(RTWX["currentFrameName"])
+    hideRasterLayer(RTWX["current-frame-name"])
     showRasterLayer(layerName)
 });
 map.on('load', function () {
+    document.getElementById("datetime-display").innerHTML = Intl.DateTimeFormat().resolvedOptions().timeZone
     playAnimation()
 });
 

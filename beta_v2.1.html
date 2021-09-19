@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Route Weather</title>
+    <title>Route Weather Beta v2.1</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -19,7 +19,7 @@
     <div class="c-header__wrapper o-wrapper">
       <div>
       <div style="display: inline-block; width: 100%;">
-          <h1 class="c-logo">Route Weather</h1>
+          <h1 style="text-align: right; color: azure; font-size: x-large; font-weight: bold;"c-logo">Route Weather</h1>
       </div>
       <div style="display: inline-block; width: 100%;">
           <h2 id="datetime-display"></h2>
@@ -97,8 +97,10 @@
   
   </header>
 <main class="c-main o-wrapper">
-    <img onclick="playAnimation()" id="play-button" src="img/play-button.png"/>
-    <img onclick="pauseAnimation()" id="pause-button" src="img/pause-button.png"/>
+    <div id="animation-controls-wrapper">
+        <img onclick="playAnimation()" id="play-button" src="img/play-button.png"/>
+        <img onclick="pauseAnimation()" id="pause-button" src="img/pause-button.png"/>
+    </div>
     <div id="animation-slider-wrapper" class="slider-wrapper">
         <label for="animation-delay-slider">Animation Delay</label>
         <input type="range" min="200" max="1000" value="200" id="animation-delay-slider" step="10">
