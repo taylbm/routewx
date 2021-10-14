@@ -116,7 +116,7 @@ function playAnimation() {
         var currentFrameMod = currentFrame % totalFrames
         let currentFrameIdx = RTWX["frames"].length - totalFrames + currentFrameMod - 1
 
-        let currentFrameUrl = RTWX["frames"][currentFrameIdx]["url"]
+        let currentFrameUrl = RTWX["frames"][currentFrameIdx]["url"].replace("http", "https")
         let currentFrameName = getFrameName(currentFrameUrl)
 
         let currentFrameDate = new Date(
@@ -132,7 +132,7 @@ function playAnimation() {
         var shsrLayer = map.getLayer(currentFrameName)
         if (currentFrame > 0) {
             let previousFrameIdx = currentFrameMod == 0 ? RTWX["frames"].length - 2 : RTWX["frames"].length - totalFrames + currentFrameMod - 2
-            let previousFrameUrl = RTWX["frames"][previousFrameIdx]["url"]
+            let previousFrameUrl = RTWX["frames"][previousFrameIdx]["url"].replace("http", "https")
             let previousFrameName = getFrameName(previousFrameUrl)
             let previousFrameDate = new Date(
                 Date.UTC(
