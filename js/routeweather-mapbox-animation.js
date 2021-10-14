@@ -6,7 +6,7 @@ var RTWX = {
     "total-frames": 30,
     "interval-id": null,
     "current-frame-name": null,
-    "tile-root": "https://mbtiles.routewx.com/services/",
+    "tile-root": "https://api.routewx.com/services/",
     "date-slider-init": false,
     "frames": []
 }
