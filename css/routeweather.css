@@ -1,6 +1,6 @@
 body { margin: 0; padding: 0; }
 .visible-checkbox {width: 50px; height: 30px;}
-#datetime-display {text-align: right; margin-left: 30%; color: blanchedalmond; opacity: 0.75; bottom: 0px;}
+#datetime-display {background:ghostwhite; opacity: 0.75; bottom: -13%; color:black; }
 
 #play-button {width: 5%; left: 1%; background: black; opacity: 0.75; border-radius: 5px;}
 #pause-button {width: 5%; left: 20%; background:white; opacity: 0.75; border-radius: 5px;}

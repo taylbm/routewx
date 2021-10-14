@@ -293,7 +293,7 @@ $("#date-range-slider").on("userValuesChanged", function(e, data){
     showRasterLayer(layerName)
 });
 map.on('load', function () {
-    document.getElementById("datetime-display").innerHTML = Intl.DateTimeFormat().resolvedOptions().timeZone
+    document.getElementById("datetime-display").innerHTML = "Timezone: " + Intl.DateTimeFormat().resolvedOptions().timeZone
     playAnimation()
 });
 
