@@ -296,6 +296,23 @@ $("#date-range-slider").on("userValuesChanged", function(e, data){
 
 map.on('load', function () {
     playAnimation()
+    // Try HTML5 geolocation.
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+            const pos = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+            };
+            map.setCenter(pos);
+            },
+            () => {
+            handleLocationError(true, infoWindow, map.getCenter());
+            }
+        );
+    } else {
+        // Browser doesn't support Geolocation
+    }
 });
 
 $("#play-button").on("click touchend", playAnimation);
