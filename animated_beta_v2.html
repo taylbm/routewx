@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Route Weather Beta v2.1</title>
+    <title>Route Weather Animation Beta v2</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -17,14 +17,17 @@
 <header class="c-header">
 
     <div class="c-header__wrapper o-wrapper">
-      <div>
-      <div style="display: inline-block; width: 100%;">
-          <h1 style="text-align: right; color: azure; font-size: x-large; font-weight: bold;"c-logo">Route Weather</h1>
+      <div style="display: inline-block; margin-left: 20%; width: 20%;">
+          <h1 style="text-align: right; color: azure; font-size: x-large; font-weight: bold; margin-left:50%">Route Weather</h1>
       </div>
       <div style="display: inline-block; width: 100%;">
           <h2 id="datetime-display"></h2>
       </div>
-      </div>
+    </div>
+    <div style="margin-left: 50%;">
+        <a href="https://twitter.com/routewx?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-show-count="false">Follow @routewx</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    </div>
+    </div>
       <div class="c-nav">
 
         <input class="c-nav__check" id="navmobile" type="checkbox" style="display: none;"/>
@@ -98,8 +101,8 @@
   </header>
 <main class="c-main o-wrapper">
     <div id="animation-controls-wrapper">
-        <img onclick="playAnimation()" id="play-button" src="img/play-button.png"/>
-        <img onclick="pauseAnimation()" id="pause-button" src="img/pause-button.png"/>
+        <img id="play-button" src="img/play-button.png"/>
+        <img id="pause-button" src="img/pause-button.png"/>
     </div>
     <div id="animation-slider-wrapper" class="slider-wrapper">
         <label for="animation-delay-slider">Animation Delay</label>
