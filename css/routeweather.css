@@ -5,8 +5,8 @@ body { margin: 0; padding: 0; }
     opacity: 0.75; 
     color:black;
     font-size: medium;
-    width: 100%;
-    text-align: right;
+    width: 75%;
+    text-align: left;
     margin-left: 30%;
 }
 #play-button {width: 5%; left: 1%; background: black; opacity: 0.75; border-radius: 5px;}
