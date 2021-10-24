@@ -91,6 +91,7 @@ function getLayerName(layerDate){
     const minuteStr = layerDate.toISOString().split("T")[1].split(":")[1]
     return "shsr-" + isoDateStr + "-" + hourStr + minuteStr
 }
+
 function playAnimation() {
     var currentFrame = 0;
     var delay = RTWX["animation-delay"]
@@ -115,7 +116,6 @@ function playAnimation() {
     RTWX["interval-id"] = setInterval(function () {
         var currentFrameMod = currentFrame % totalFrames
         let currentFrameIdx = RTWX["frames"].length - totalFrames + currentFrameMod - 1
-
         let currentFrameUrl = RTWX["frames"][currentFrameIdx]["url"].replace("http", "https")
         let currentFrameName = getFrameName(currentFrameUrl)
 
@@ -130,6 +130,7 @@ function playAnimation() {
         )
 
         var shsrLayer = map.getLayer(currentFrameName)
+        document.getElementById("datetime-display").innerHTML = currentFrameDate
         if (currentFrame > 0) {
             let previousFrameIdx = currentFrameMod == 0 ? RTWX["frames"].length - 2 : RTWX["frames"].length - totalFrames + currentFrameMod - 2
             let previousFrameUrl = RTWX["frames"][previousFrameIdx]["url"].replace("http", "https")
@@ -161,12 +162,11 @@ function playAnimation() {
                 "type": "raster",
                 "source": currentFrameName,
                 "paint": {
-                    'raster-opacity': RTWX["shsr-opacity"]
+                    "raster-opacity": RTWX["shsr-opacity"]
                 }
             });
         }
 
-        
         showRasterLayer(currentFrameName)
         currentFrame += 1
     }, delay);
@@ -290,12 +290,33 @@ var map = new mapboxgl.Map({
 $("#date-range-slider").on("userValuesChanged", function(e, data){
     const layerName = getLayerName(data.values.max)
     hideRasterLayer(RTWX["current-frame-name"])
+    document.getElementById("datetime-display").innerHTML = data.values.max
     showRasterLayer(layerName)
 });
+
 map.on('load', function () {
-    document.getElementById("datetime-display").innerHTML = Intl.DateTimeFormat().resolvedOptions().timeZone
     playAnimation()
+    // Try HTML5 geolocation.
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+            const pos = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+            };
+            map.setCenter(pos);
+            },
+            () => {
+            handleLocationError(true, infoWindow, map.getCenter());
+            }
+        );
+    } else {
+        // Browser doesn't support Geolocation
+    }
 });
+
+$("#play-button").on("click touchend", playAnimation);
+$("#pause-button").on("click touchend", pauseAnimation);
 
 setInterval(function () {
     getAvailableFrames()
